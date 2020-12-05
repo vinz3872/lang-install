@@ -1,14 +1,10 @@
 #!/bin/sh
 
-# check_aliases_config() {
-#   while read -r line; do
-#   case $line in
-#     alias*)
-#       echo 'alias' $line
-#     ;;
-#   esac
-#   done < config/.config_path
-# }
+check_aliases_config() {
+  while read -r lang bin_name; do
+    [[ $lang == $language ]] && binary_name=$bin_name
+  done < config/.config_aliases
+}
 
 usage() {
   cat <<-EOF
@@ -46,6 +42,31 @@ error() {
   exit 1
 }
 
+add_lang() {
+  [[ -z $binary_name ]] && check_aliases_config
+  # echo $use_alpine
+  # echo $binary_name
+  # echo $language
+  # echo $version
+
+  # TODO: check postgres && postgres alpine
+  # TODO: check golang && golang alpine
+  # TODO: check python && python alpine
+
+  # TODO: check if specific conf exist
+  # use $use_alpine to find if alpine or not need to be used
+  #   if [[ -n $use_alpine ]] or if [[ $use_alpine == true ]]
+  # find which build.sh need to be used (or build_alpine.sh)
+  #   if [[ -f "languages/$language/build.sh" ]];
+  # find which Dockerfile need to be used (or Dockerfile.alpine)
+  #   if [[ -f "languages/$language/Dockerfile" ]];
+  # send $language $version $binary_name to build.sh
+}
+
+remove_lang() {
+  echo "To be implemented"
+}
+
 project_dir=$(realpath $0 | xargs dirname)
 cd $project_dir
 
@@ -62,7 +83,7 @@ esac
 # Parse options
 [[ $# -eq 0 ]] && error "Error: Language is missing"
 while (( "$#" )); do
-  [[ $1 =~ ^-a|--alpine$ ]] && { use_alpine="true"; shift; continue; };
+  [[ $1 =~ ^-a|--alpine$ ]] && { use_alpine=true; shift; continue; };
   [[ $1 =~ ^-b|--binary$ ]] && {
     if [[ -n $2 ]] && [[ ${2:0:1} != "-" ]]; then
       binary_name=$2; shift 2; continue;
@@ -78,11 +99,6 @@ while (( "$#" )); do
 done
 [[ -z $language ]] && error "Error: Language is missing"
 
-echo $action
-echo $use_alpine
-echo $binary_name
-echo $language
-echo $version
-# TODO: exec command with given params (and check if alias given)
-
-# ./scripts/refresh_env_file.sh
+[[ $action == 'add' ]] && add_lang
+[[ $action == 'remove' ]] && remove_lang
+./scripts/refresh_env_file.sh

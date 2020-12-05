@@ -15,24 +15,25 @@ docker build -t "path_$bin_name:$version" \
   -f Dockerfile \
   .
 
-if [ ! -d "$path/$bin_name/$version" ]; then
+# if [ ! -d "$path/$bin_name/$version" ]; then
   # init folder and copy files in parent folder
-  mkdir -p $path/$bin_name/$version
-  content_bin_sh="#!/bin/sh"
-  content_docker_generic='docker run -it --rm --network=host -v "/tmp:/tmp" -v "$HOME:$HOME" -v "$PWD:$PWD" -w $PWD -u `id -u` --env-file $DOCKER_ENV_FILE_PATH'
-  dirname=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` path_$bin_name:$version bash -c "which $bin_name | xargs dirname")
+  # mkdir -p $path/$bin_name/$version
+  # content_bin_sh="#!/bin/sh"
+  # content_docker_generic='docker run -it --rm --network=host -v "/tmp:/tmp" -v "$HOME:$HOME" -v "$PWD:$PWD" -w $PWD -u `id -u` --env-file $DOCKER_ENV_FILE_PATH'
+  # dirname=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` path_$bin_name:$version bash -c "which $bin_name | xargs dirname")
 
   declare -a bins=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` path_$bin_name:$version ls -I "*.sh" ${dirname%%[[:cntrl:]]})
   for i in $bins; do
     # ${i%%[[:cntrl:]]}: remove \r (last elem)
     file_content="$content_bin_sh\n$content_docker_generic path_$bin_name:$version ${i%%[[:cntrl:]]}"
     file_content+=' "$@"'
-    echo -e $file_content > $path/$bin_name/$version/${i%%[[:cntrl:]]}
-    chmod +x $path/$bin_name/$version/${i%%[[:cntrl:]]}
+    echo $file_content
+    # echo -e $file_content > $path/$bin_name/$version/${i%%[[:cntrl:]]}
+    # chmod +x $path/$bin_name/$version/${i%%[[:cntrl:]]}
   done
-fi
+# fi
 
-if [ -d "$path/$bin_name/global" ]; then
-  rm -rf "$path/$bin_name/global"
-fi
-cp -R $path/$bin_name/$version $path/$bin_name/global
+# if [ -d "$path/$bin_name/global" ]; then
+#   rm -rf "$path/$bin_name/global"
+# fi
+# cp -R $path/$bin_name/$version $path/$bin_name/global
