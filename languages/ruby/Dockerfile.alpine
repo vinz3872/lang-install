@@ -1,0 +1,10 @@
+ARG BIN_NAME
+ARG VERSION
+FROM $BIN_NAME:$VERSION-alpine
+ARG USER_NAME
+ARG USER_UID
+ARG USER_GID
+RUN addgroup -g $USER_GID $USER_NAME
+RUN adduser -D -G $USER_NAME -u $USER_UID $USER_NAME
+# RUN apk add 'postgresql<11'
+RUN apk add postgresql git

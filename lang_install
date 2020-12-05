@@ -76,7 +76,7 @@ while (( "$#" )); do
   version=$([[ -n $2 ]] && echo $2 || echo 'latest')
   break
 done
-[[ -z $language ]] && error "Error: Language is missing aa"
+[[ -z $language ]] && error "Error: Language is missing"
 
 echo $action
 echo $use_alpine
