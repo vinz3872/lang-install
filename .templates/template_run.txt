@@ -1,0 +1,10 @@
+#!/bin/sh
+# if [ $# -eq 0 ]; then
+#   args="psql -h localhost -U postgres"
+# else
+#   args="psql "$@
+# fi
+
+docker run -it --rm --network=host postgres:10.6-alpine $args
+
+docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` cmd_myname "$@"
