@@ -1,16 +1,88 @@
 #!/bin/sh
 
-check_aliases_config() {
-  while read -r line; do
-  case $line in
-    alias*)
-      echo 'alias' $line
-    ;;
-  esac
-  done < config/.config_path
+# check_aliases_config() {
+#   while read -r line; do
+#   case $line in
+#     alias*)
+#       echo 'alias' $line
+#     ;;
+#   esac
+#   done < config/.config_path
+# }
+
+usage() {
+  cat <<-EOF
+USAGE:
+
+lang_install help
+    Show usage
+lang_install list
+    List installed languages
+lang_install add [OPTIONS] LANGUAGE [VERSION]
+    Install a new language / version 
+lang_install remove [OPTIONS] LANGUAGE [VERSION]
+    Remove an installed language
+
+OPTIONS
+  -a, --alpine
+        Use alpine images
+  -b <BINARY_NAME>, --binary <BINARY_NAME>
+        Specify the main binary name. Default is equal to the language's name, can be configured in config/.config_aliases
+EOF
+  exit 0
+}
+
+list() {
+  tree -d $LI_DOCKER_PATH_BINS
+  exit 0
+}
+
+help() {
+  usage
+}
+
+error() {
+  echo $1 >&2
+  exit 1
 }
 
 project_dir=$(realpath $0 | xargs dirname)
 cd $project_dir
 
 . ./scripts/load_config.sh
+
+# Parse action
+[[ $# -eq 0 ]] && usage
+case $1 in
+  add|remove) action=$1; shift;;
+  list|help) $1;;
+  *) usage;;
+esac
+
+# Parse options
+[[ $# -eq 0 ]] && error "Error: Language is missing"
+while (( "$#" )); do
+  [[ $1 =~ ^-a|--alpine$ ]] && { use_alpine="true"; shift; continue; };
+  [[ $1 =~ ^-b|--binary$ ]] && {
+    if [[ -n $2 ]] && [[ ${2:0:1} != "-" ]]; then
+      binary_name=$2; shift 2; continue;
+    else
+      error "Error: Argument for $1 is missing"
+    fi
+  };
+  [[ ${1:0:1} == '-' ]] && error "Error: Unknown param $1"
+  [[ -z $1 ]] && error "Error: Language is missing"
+  language=$1
+  version=$([[ -n $2 ]] && echo $2 || echo 'latest')
+  break
+done
+[[ -z $language ]] && error "Error: Language is missing aa"
+
+echo $action
+echo $use_alpine
+echo $binary_name
+echo $language
+echo $version
+# TODO: exec command with given params (and check if alias given)
+
+# ./scripts/refresh_env_file.sh

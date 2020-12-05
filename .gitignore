@@ -10,3 +10,6 @@
 Thumbs.db
 
 bin/*
+config/env_file
+config/load_env.sh
+used_version

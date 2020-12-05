@@ -1,5 +1,5 @@
 # This file is auto generated, do not modify it.
-GEM_HOME=/home/vince/.gems
-GEM_PATH=/home/vince/.gems
-BUNDLE_PATH=/home/vince/.gems
-DOCKER_PATH_BINS=/home/vince/docker/path
+LI_DOCKER_PATH_BINS=/home/vince/lang-install/bin
+GEM_PATH=~/.gems
+GEM_HOME=~/.gems
+BUNDLE_PATH=~/.gems
