@@ -24,6 +24,10 @@ OPTIONS
         Use alpine images
   -b <BINARY_NAME>, --binary <BINARY_NAME>
         Specify the main binary name. Default is equal to the language's name, can be configured in config/.config_aliases
+  -d, --debug
+      Debug mode. Show what binaries whould be installed
+  -v, --verbose
+      Show more logs
 EOF
   exit 0
 }
@@ -44,23 +48,34 @@ error() {
 
 add_lang() {
   [[ -z $binary_name ]] && check_aliases_config
-  # echo $use_alpine
-  # echo $binary_name
-  # echo $language
-  # echo $version
-
+  : ${binary_name:=$language}
   # TODO: check postgres && postgres alpine
   # TODO: check golang && golang alpine
   # TODO: check python && python alpine
 
-  # TODO: check if specific conf exist
-  # use $use_alpine to find if alpine or not need to be used
-  #   if [[ -n $use_alpine ]] or if [[ $use_alpine == true ]]
-  # find which build.sh need to be used (or build_alpine.sh)
-  #   if [[ -f "languages/$language/build.sh" ]];
-  # find which Dockerfile need to be used (or Dockerfile.alpine)
-  #   if [[ -f "languages/$language/Dockerfile" ]];
-  # send $language $version $binary_name to build.sh
+  build_file_name="build${use_alpine:+_alpine}.sh"
+  if [[ -f "languages/$language/$build_file_name" ]]; then
+    build_file_path="languages/$language/$build_file_name"
+  elif [[ -f "languages/default/$build_file_name" ]]; then
+    build_file_path="languages/default/$build_file_name"
+  else
+    error "Error: Build file $build_file_name not found"
+  fi
+
+  dockerfile_name="Dockerfile${use_alpine:+.alpine}"
+  if [[ -f "languages/$language/$dockerfile_name" ]]; then
+    dockerfile_path="languages/$language/$dockerfile_name"
+  elif [[ -f "languages/default/$dockerfile_name" ]]; then
+    dockerfile_path="languages/default/$dockerfile_name"
+  else
+    error "Error: Build file $dockerfile_name not found"
+  fi
+
+  : ${debug:=false}
+  : ${verbose:=false}
+
+  ./$build_file_path $language $version $binary_name $dockerfile_path $debug $verbose
+  docker image prune -f
 }
 
 remove_lang() {
@@ -91,6 +106,8 @@ while (( "$#" )); do
       error "Error: Argument for $1 is missing"
     fi
   };
+  [[ $1 =~ ^-d|--debug$ ]] && { debug=true; shift; continue; };
+  [[ $1 =~ ^-v|--verbose$ ]] && { verbose=true; shift; continue; };
   [[ ${1:0:1} == '-' ]] && error "Error: Unknown param $1"
   [[ -z $1 ]] && error "Error: Language is missing"
   language=$1
