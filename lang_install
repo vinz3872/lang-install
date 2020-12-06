@@ -49,7 +49,6 @@ error() {
 add_lang() {
   [[ -z $binary_name ]] && check_aliases_config
   : ${binary_name:=$language}
-  # TODO: check postgres && postgres alpine
   # TODO: check golang && golang alpine
   # TODO: check python && python alpine
 
