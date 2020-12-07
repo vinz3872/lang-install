@@ -77,6 +77,10 @@ add_lang() {
 
 remove_lang() {
   echo "To be implemented"
+  # if multiple versions
+  #   remove the specified version
+  # else
+  #   remove the folder
 }
 
 project_dir=$(realpath $0 | xargs dirname)
