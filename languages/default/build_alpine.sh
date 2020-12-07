@@ -29,7 +29,7 @@ if [[ $debug == true ]]; then
   content_bin_sh="#!/bin/sh"
   content_docker_generic='docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u`'
 
-  declare -a bins=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` li_$language:$version find $dirname ! -name "*.sh" -exec basename {} \;)
+  declare -a bins=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` li_$language:$version find $dirname ! -name "*.sh" ! -type d -exec basename {} \;)
   for i in $bins; do
     # ${i%%[[:cntrl:]]}: remove \r (last elem)
     file_content="$content_bin_sh\n$content_docker_generic li_$language:$version ${i%%[[:cntrl:]]}"
@@ -45,7 +45,7 @@ else
     content_bin_sh="#!/bin/sh"
     content_docker_generic='docker run -it --rm --network=host -v "/tmp:/tmp" -v "$HOME:$HOME" -v "$PWD:$PWD" -w $PWD -u `id -u` --env-file $LI_DOCKER_ENV_FILE_PATH'
 
-    declare -a bins=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` li_$language:$version find $dirname ! -name "*.sh" -exec basename {} \;)
+    declare -a bins=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` li_$language:$version find $dirname ! -name "*.sh" ! -type d -exec basename {} \;)
     for i in $bins; do
       # ${i%%[[:cntrl:]]}: remove \r (last elem)
       i=${i%%[[:cntrl:]]}

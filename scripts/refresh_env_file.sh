@@ -1,7 +1,7 @@
 #!/bin/sh
 
-env_file_path=config/load_env.sh
-docker_env_file_path=config/env_file
+env_file_path=$PWD/config/load_env.sh
+docker_env_file_path=$PWD/config/env_file
 bin_folder=$PWD/bin
 
 echo "# This file is auto generated, do not modify it." > $env_file_path
@@ -21,7 +21,7 @@ done < config/.config
 
 # Add installed languages binaries in path
 declare -a dirs=$(find $bin_folder -name "global")
-current_path=$PATH
+current_path='$PATH'
 for i in $dirs; do
   # ${i%%[[:cntrl:]]}: remove \r (last elem)
   str=${i%%[[:cntrl:]]}

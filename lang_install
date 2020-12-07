@@ -49,8 +49,6 @@ error() {
 add_lang() {
   [[ -z $binary_name ]] && check_aliases_config
   : ${binary_name:=$language}
-  # TODO: check golang && golang alpine
-  # TODO: check python && python alpine
 
   build_file_name="build${use_alpine:+_alpine}.sh"
   if [[ -f "languages/$language/$build_file_name" ]]; then
