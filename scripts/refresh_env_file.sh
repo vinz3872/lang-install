@@ -15,8 +15,8 @@ echo "export LI_DOCKER_ENV_FILE_PATH=$docker_env_file_path" >> $env_file_path
 # Import env variables from config/.config
 while read -r env_name value; do
   ([[ $env_name == '#' ]] || [[ -z $env_name ]] || [[ -z $value ]]) && continue
-  echo "export ${env_name^^}=${value}" >> $env_file_path
-  echo ${env_name^^}=${value} >> $docker_env_file_path
+  echo "export ${env_name^^}=$(echo $value | envsubst)" >> $env_file_path
+  echo ${env_name^^}=$(echo $value | envsubst) >> $docker_env_file_path
 done < config/.config
 
 # Add installed languages binaries in path
