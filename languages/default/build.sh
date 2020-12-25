@@ -25,15 +25,20 @@ dirname=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` l
 dirname=${dirname%%[[:cntrl:]]}
 # debug
 if [[ $debug == true ]]; then
-  content_bin_sh="#!/bin/sh"
-  content_docker_generic='docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u`'
-
   declare -a bins=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` li_$language:$version ls -I "*.sh" $dirname)
   for i in $bins; do
     # ${i%%[[:cntrl:]]}: remove \r (last elem)
-    file_content="$content_bin_sh\n$content_docker_generic li_$language:$version ${i%%[[:cntrl:]]}"
-    file_content+=' "$@"'
-    echo -e $file_content
+    i=${i%%[[:cntrl:]]}
+    file_content=$(cat <<-END
+#!/bin/sh
+if [[ -t 0 ]] || [[ \$- == *i* ]] || [[ -n "\$PS1" ]]; then
+  docker run -it --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+else
+  docker run -i --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+fi
+END
+)
+    echo -e "$file_content"
   done
 else
   bin_folder_path=$LI_DOCKER_PATH_BINS/$language/$version
@@ -41,17 +46,19 @@ else
   if [ ! -d $bin_folder_path ]; then
     # init folder and copy files in parent folder
     mkdir -p $bin_folder_path
-    content_bin_sh="#!/bin/sh"
-    content_docker_generic='docker run -it --rm --network=host -v "/tmp:/tmp" -v "$HOME:$HOME" -v "$PWD:$PWD" -w $PWD -u `id -u` --env-file $LI_DOCKER_ENV_FILE_PATH'
-
     declare -a bins=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` li_$language:$version ls -I "*.sh" $dirname)
     for i in $bins; do
       # ${i%%[[:cntrl:]]}: remove \r (last elem)
       i=${i%%[[:cntrl:]]}
       [[ $verbose == true ]] && echo "Binary found: $i"
-      file_content="$content_bin_sh\n$content_docker_generic li_$language:$version $i"
-      file_content+=' "$@"'
-      echo -e $file_content > $bin_folder_path/$i
+      cat <<EOT >> $bin_folder_path/$i
+#!/bin/sh
+if [[ -t 0 ]] || [[ \$- == *i* ]] || [[ -n "\$PS1" ]]; then
+  docker run -it --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+else
+  docker run -i --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+fi
+EOT
       chmod +x $bin_folder_path/$i
     done
   fi

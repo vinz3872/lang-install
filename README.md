@@ -22,7 +22,7 @@ You can also install programs like Postgres as long as they have a docker image.
 
 ## Configuration
 You can add custom env variables in **config/.config** with the format [snake case env name]  [path]  
-e.g. *gem_path $HOME/.gems*
+e.g. *gem_path /home/username/.gems*
 
 If a language / program doesn't work with the generic install (or need specific build configuration), you can overwrite it in the **languages** folder  
 e.g. *node alpine who create a default 'node' user*
