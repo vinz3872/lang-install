@@ -1,0 +1,24 @@
+# Global
+
+# Ruby
+ruby:
+  env:
+    gem_path: $HOME/.gems
+    gem_home: $HOME/.gems
+    bundle_path: $HOME/.gems
+  volume:
+    name: li_ruby_gems
+
+# Node
+node:
+  volume:
+    name: li_node
+  additional_packages: git
+
+# Postgres
+postgres:
+  alias: psql
+
+# Golang
+golang:
+  alias: go

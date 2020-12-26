@@ -1,8 +1,11 @@
 #!/bin/sh
 
+echo $(compgen -v | grep env)
+
 env_file_path=$PWD/config/load_env.sh
 docker_env_file_path=$PWD/config/env_file
 bin_folder=$PWD/bin
+echo $(compgen -v | grep env)
 
 echo "# This file is auto generated, do not modify it." > $env_file_path
 echo "# This file is auto generated, do not modify it." > $docker_env_file_path
