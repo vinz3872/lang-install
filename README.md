@@ -46,7 +46,7 @@ OPTIONS
   -a, --alpine
         Use alpine images
   -b <BINARY_NAME>, --binary <BINARY_NAME>
-        Specify the main binary name. Default is equal to the language's name, can be configured in config/.config_aliases
+        Specify the main binary name. Default is equal to the language's name, can be configured in config/.config.yaml
   -d, --debug
       Debug mode. Show what binaries whould be installed
   -v, --verbose

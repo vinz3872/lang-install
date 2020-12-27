@@ -1,9 +1,8 @@
 #!/bin/sh
 
 check_aliases_config() {
-  while read -r lang bin_name; do
-    [[ $lang == $language ]] && binary_name=$bin_name
-  done < config/.config_aliases
+  var_name="LI_${language}_alias"
+  binary_name=${!var_name}
 }
 
 usage() {
@@ -113,6 +112,8 @@ project_dir=$(realpath $0 | xargs dirname)
 cd $project_dir
 
 . ./scripts/load_config.sh
+. scripts/parse_yaml.sh
+eval $(parse_yaml $PWD/config/.config.yaml "LI_")
 
 # Parse action
 [[ $# -eq 0 ]] && usage
