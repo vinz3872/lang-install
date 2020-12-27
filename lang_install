@@ -46,6 +46,15 @@ error() {
   exit 1
 }
 
+confirm() {
+  read -p "$1 ? [YyNn]" -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    return 0
+  fi
+  exit 0
+}
+
 add_lang() {
   [[ -z $binary_name ]] && check_aliases_config
   : ${binary_name:=$language}
@@ -76,7 +85,24 @@ add_lang() {
 }
 
 remove_lang() {
-  echo "To be implemented"
+  if [[ $version != 'latest' ]]; then
+    if [[ -d "bin/$language/$version" ]]; then
+      confirm "Remove $language version $version"
+      rm -r bin/$language/$version
+      echo "$language version $version is removed"
+    else
+      error "Error: $language version $version is not installed"
+    fi
+  else
+    if [[ -d "bin/$language" ]]; then
+      confirm "Remove $language"
+      rm -r bin/$language
+      echo "$language is removed"
+    else
+      error "Error: $language is not installed"
+    fi
+  fi
+
   # if multiple versions
   #   remove the specified version
   # else
