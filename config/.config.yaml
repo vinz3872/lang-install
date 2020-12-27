@@ -13,7 +13,9 @@ ruby:
 node:
   volume:
     name: li_node
-  additional_packages: git
+  additional_packages:
+    default: git
+    alpine: git
 
 # Postgres
 postgres:
