@@ -20,7 +20,7 @@ You can also install programs like Postgres as long as they have a docker image.
   cd lang-install && ./install.sh
 ```
 
-## Configuration
+## Configuration [outdated]
 You can add custom env variables in **config/.config** with the format [snake case env name]  [path]  
 e.g. *gem_path /home/username/.gems*
 

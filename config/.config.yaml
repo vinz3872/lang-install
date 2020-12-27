@@ -6,6 +6,7 @@ ruby:
     gem_path: $HOME/.gems
     gem_home: $HOME/.gems
     bundle_path: $HOME/.gems
+  export_env: RAILS_ENV
   volume:
     name: li_ruby_gems
 
