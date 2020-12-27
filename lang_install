@@ -78,8 +78,9 @@ add_lang() {
 
   : ${debug:=false}
   : ${verbose:=false}
+  export_env_name="LI_${language}_export_env"
 
-  ./$build_file_path $language $version $binary_name $dockerfile_path $debug $verbose
+  ./$build_file_path $language $version $binary_name $dockerfile_path $debug $verbose "${!export_env_name}"
   docker image prune -f
 }
 

@@ -9,6 +9,7 @@ ruby:
   export_env: RAILS_ENV
   volume:
     name: li_ruby_gems
+  add_packages: git
 
 # Node
 node:
