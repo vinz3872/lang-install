@@ -11,6 +11,7 @@ binary_name=$3
 dockerfile_path=$4
 debug=$5
 verbose=$6
+declare -a export_env=$7
 
 docker build -t "li_$language:$version" \
   --build-arg USER_UID=`id -u` \
@@ -20,6 +21,12 @@ docker build -t "li_$language:$version" \
   --build-arg LANGUAGE=$language \
   -f $dockerfile_path \
   .
+
+if [[ -n $export_env ]]; then
+  for i in $export_env; do
+    env_variables+="-e $i=\$$i "
+  done
+fi
 
 dirname=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` li_$language:$version bash -c "which $binary_name | xargs dirname")
 dirname=${dirname%%[[:cntrl:]]}
@@ -34,9 +41,9 @@ if [[ $debug == true ]]; then
     file_content=$(cat <<-END
 #!/bin/sh
 if [[ -t 0 ]] || [[ \$- == *i* ]] || [[ -n "\$PS1" ]]; then
-  docker run -it --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+  docker run -it --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
 else
-  docker run -i --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+  docker run -i --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
 fi
 END
 )
@@ -48,9 +55,9 @@ END
     file_content=$(cat <<-END
 #!/bin/sh
 if [[ -t 0 ]] || [[ \$- == *i* ]] || [[ -n "\$PS1" ]]; then
-  docker run -it --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+  docker run -it --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
 else
-  docker run -i --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+  docker run -i --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
 fi
 END
 )

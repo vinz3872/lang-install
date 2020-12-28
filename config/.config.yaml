@@ -1,4 +1,26 @@
+# # Template
+# language_name:
+#   # env variable to add to each command (fixed)
+#   env:
+#     env_var_1: env_val_1
+#     env_var_2: env_val_2
+#   # env variable that will be added to each command at runtime (dymamic)
+#   export_env: ENV_VAR_1 ENV_VAR_2
+#   # main binary alias (eg: docker image's name: golang, main executable: go)
+#   alias: my_alias
+#   # mount additionnal dirs
+#   mount:
+#     my_name: src:dest
+#   # add packages when building images
+#   additional_packages:
+#     default: first_package second_package
+#     alpine: first_package second_package
+
 # Global
+global:
+  mount:
+    pwd: $PWD:$PWD
+    tmp: /tmp:/tmp
 
 # Ruby
 ruby:
@@ -7,16 +29,17 @@ ruby:
     gem_home: $HOME/.gems
     bundle_path: $HOME/.gems
   export_env: RAILS_ENV
-  volume:
-    name: li_ruby_gems
-  add_packages: git
+  mount:
+    # home: $HOME:$HOME
+    gems: $HOME/.gems:$HOME/.gems
+  additional_packages:
+    alpine: git postgresql
 
 # Node
 node:
   volume:
     name: li_node
   additional_packages:
-    default: git
     alpine: git
 
 # Postgres
