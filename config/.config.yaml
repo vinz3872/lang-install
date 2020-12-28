@@ -25,13 +25,13 @@ global:
 # Ruby
 ruby:
   env:
-    gem_path: $HOME/.gems
-    gem_home: $HOME/.gems
-    bundle_path: $HOME/.gems
+    gem_path: $HOME/.gems/$LI_RUBY_VERSION
+    gem_home: $HOME/.gems/$LI_RUBY_VERSION
+    bundle_path: $HOME/.gems/$LI_RUBY_VERSION
   export_env: RAILS_ENV
   mount:
     # home: $HOME:$HOME
-    gems: $HOME/.gems:$HOME/.gems
+    gems: $HOME/.gems/$LI_RUBY_VERSION:$HOME/.gems/$LI_RUBY_VERSION
   additional_packages:
     alpine: git postgresql
 

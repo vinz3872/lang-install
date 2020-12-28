@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. scripts/load_versions.sh
+
 . scripts/parse_yaml.sh
 eval $(parse_yaml $PWD/config/.config.yaml "LI_")
 
