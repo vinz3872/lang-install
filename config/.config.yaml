@@ -19,7 +19,6 @@
 # Global
 global:
   mount:
-    pwd: $PWD:$PWD
     tmp: /tmp:/tmp
 
 # Ruby

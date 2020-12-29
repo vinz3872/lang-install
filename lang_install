@@ -80,7 +80,15 @@ add_lang() {
   : ${verbose:=false}
   export_env_name="LI_${language}_export_env"
 
-  ./$build_file_path $language $version $binary_name $dockerfile_path $debug $verbose "${!export_env_name}"
+  declare -a mount_points_global=$(compgen -v | grep "LI_global_mount_.*")
+  declare -a mount_points=$(compgen -v | grep "LI_${language}_mount_.*")
+  mount_points+=($mount_points_global)
+
+  for i in ${mount_points[@]}; do
+    [[ -n $mount_list ]] && mount_list+=' '
+    mount_list+=${!i}
+  done
+  ./$build_file_path $language $version $binary_name $dockerfile_path $debug $verbose "${!export_env_name}" "$mount_list"
   docker image prune -f
 }
 
@@ -102,19 +110,13 @@ remove_lang() {
       error "Error: $language is not installed"
     fi
   fi
-
-  # if multiple versions
-  #   remove the specified version
-  # else
-  #   remove the folder
 }
 
 project_dir=$(realpath $0 | xargs dirname)
 cd $project_dir
 
-. ./scripts/load_config.sh
+. scripts/load_config.sh
 . scripts/parse_yaml.sh
-eval $(parse_yaml $PWD/config/.config.yaml "LI_")
 
 # Parse action
 [[ $# -eq 0 ]] && usage

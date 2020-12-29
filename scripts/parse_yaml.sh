@@ -17,3 +17,7 @@ function parse_yaml {
       }
    }'
 }
+
+while IFS= read -r line; do
+  export "$line"
+done <<< "$(parse_yaml $PWD/config/.config.yaml "LI_")"

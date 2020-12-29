@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [[ $# < 6 ]]; then
+if [[ $# < 8 ]]; then
   echo "Missing params, can't build"
   exit 1
 fi
@@ -12,6 +12,7 @@ dockerfile_path=$4
 debug=$5
 verbose=$6
 declare -a export_env=$7
+declare -a mount_list=$8
 
 docker build -t "li_$language:$version" \
   --build-arg USER_UID=`id -u` \
@@ -28,6 +29,12 @@ if [[ -n $export_env ]]; then
   done
 fi
 
+if [[ -n $mount_list ]]; then
+  for i in $mount_list; do
+    mount_str+="-v $i "
+  done
+fi
+
 dirname=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` li_$language:$version bash -c "which $binary_name | xargs dirname")
 dirname=${dirname%%[[:cntrl:]]}
 
@@ -41,9 +48,9 @@ if [[ $debug == true ]]; then
     file_content=$(cat <<-END
 #!/bin/sh
 if [[ -t 0 ]] || [[ \$- == *i* ]] || [[ -n "\$PS1" ]]; then
-  docker run -it --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+  docker run -it --rm --network=host ${mount_str}-v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
 else
-  docker run -i --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+  docker run -i --rm --network=host ${mount_str}-v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
 fi
 END
 )
@@ -55,9 +62,9 @@ END
     file_content=$(cat <<-END
 #!/bin/sh
 if [[ -t 0 ]] || [[ \$- == *i* ]] || [[ -n "\$PS1" ]]; then
-  docker run -it --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+  docker run -it --rm --network=host ${mount_str}-v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
 else
-  docker run -i --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+  docker run -i --rm --network=host ${mount_str}-v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
 fi
 END
 )
@@ -78,9 +85,9 @@ else
       cat <<EOT >> $bin_folder_path/$i
 #!/bin/sh
 if [[ -t 0 ]] || [[ \$- == *i* ]] || [[ -n "\$PS1" ]]; then
-  docker run -it --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+  docker run -it --rm --network=host ${mount_str}-v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
 else
-  docker run -i --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+  docker run -i --rm --network=host ${mount_str}-v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
 fi
 EOT
       chmod +x $bin_folder_path/$i
@@ -92,14 +99,16 @@ EOT
       cat <<EOT >> $bin_folder_path/$i
 #!/bin/sh
 if [[ -t 0 ]] || [[ \$- == *i* ]] || [[ -n "\$PS1" ]]; then
-  docker run -it --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+  docker run -it --rm --network=host ${mount_str}-v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
 else
-  docker run -i --rm --network=host -v "/tmp:/tmp" -v "\$HOME:\$HOME" -v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
+  docker run -i --rm --network=host ${mount_str}-v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` --env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
 fi
 EOT
       chmod +x $bin_folder_path/$i
     done
   fi
+
+  echo $version > $LI_DOCKER_PATH_BINS/$language/.version
 
   if [ -d $global_bin_folder_path ]; then
     rm -rf $global_bin_folder_path
