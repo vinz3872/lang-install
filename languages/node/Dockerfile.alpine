@@ -7,4 +7,5 @@ ARG USER_GID
 RUN deluser node
 RUN addgroup -g $USER_GID $USER_NAME
 RUN adduser -D -G $USER_NAME -u $USER_UID $USER_NAME
-RUN apk add git
+ARG ADDITIONAL_PACKAGES
+RUN if [ ! -z $ADDITIONAL_PACKAGES ]; then apk add $ADDITIONAL_PACKAGES; fi

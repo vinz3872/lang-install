@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [[ $# < 8 ]]; then
+if [[ $# < 9 ]]; then
   echo "Missing params, can't build"
   exit 1
 fi
@@ -13,6 +13,7 @@ debug=$5
 verbose=$6
 declare -a export_env=$7
 declare -a mount_list=$8
+additional_packages=$(sed -e 's/^"//' -e 's/"$//' <<< "$9")
 
 docker build -t "li_$language:$version" \
   --build-arg USER_UID=`id -u` \
@@ -20,6 +21,7 @@ docker build -t "li_$language:$version" \
   --build-arg USER_NAME=`id -un` \
   --build-arg VERSION=$version \
   --build-arg LANGUAGE=$language \
+  --build-arg ADDITIONAL_PACKAGES=$additional_packages \
   -f $dockerfile_path \
   .
 

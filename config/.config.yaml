@@ -32,6 +32,7 @@ ruby:
     home: type=bind,src=$HOME,dst=$HOME
   additional_packages:
     alpine: git postgresql
+    default: postgresql-10
 
 # Node
 node:

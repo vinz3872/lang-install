@@ -88,7 +88,11 @@ add_lang() {
     [[ -n $mount_list ]] && mount_list+=' '
     mount_list+=${!i}
   done
-  ./$build_file_path $language $version $binary_name $dockerfile_path $debug $verbose "${!export_env_name}" "$mount_list"
+
+  additional_packages="LI_${language}_additional_packages_"
+  if [[ -n $use_alpine ]]; then additional_packages+='alpine'; else additional_packages+='default'; fi
+
+  ./$build_file_path $language $version $binary_name $dockerfile_path $debug $verbose "${!export_env_name}" "$mount_list" "${!additional_packages}"
   docker image prune -f
 }
 
