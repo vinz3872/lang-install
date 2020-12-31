@@ -1,44 +1,11 @@
 #!/bin/sh
 
-if [[ $# < 9 ]]; then
-  echo "Missing params, can't build"
-  exit 1
-fi
+# load functions
+. lib/build_helper.sh
 
-language=$1
-version=$2
-binary_name=$3
-dockerfile_path=$4
-debug=$5
-verbose=$6
-declare -a export_env=$7
-declare -a mount_list=$8
-additional_packages=$(sed -e 's/^"//' -e 's/"$//' <<< "$9")
-
-docker build -t "li_$language:$version" \
-  --build-arg USER_UID=`id -u` \
-  --build-arg USER_GID=`id -g` \
-  --build-arg USER_NAME=`id -un` \
-  --build-arg VERSION=$version \
-  --build-arg LANGUAGE=$language \
-  --build-arg ADDITIONAL_PACKAGES=$additional_packages \
-  -f $dockerfile_path \
-  .
-
-if [[ -n $export_env ]]; then
-  for i in $export_env; do
-    env_variables+="-e $i=\$$(sed -e 's/^"//' -e 's/"$//' <<< "$i") "
-  done
-fi
-
-if [[ -n $mount_list ]]; then
-  for i in $mount_list; do
-    mount_str+="--mount $(sed -e 's/^"//' -e 's/"$//' <<< "$i") "
-  done
-fi
-
-dirname=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` li_$language:$version sh -c "which $binary_name | xargs dirname")
-dirname=${dirname%%[[:cntrl:]]}
+parse_build_params "${@}"
+build_image
+find_binary_dirname
 
 # debug
 if [[ $debug == true ]]; then
@@ -46,21 +13,10 @@ if [[ $debug == true ]]; then
   for i in $bins; do
     # ${i%%[[:cntrl:]]}: remove \r (last elem)
     i=${i%%[[:cntrl:]]}
-    file_content=$(cat <<-END
-#!/bin/sh
-if [[ -t 0 ]] || [[ \$- == *i* ]] || [[ -n "\$PS1" ]]; then
-  docker run -it --rm --network=host ${mount_str}-v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
-else
-  docker run -i --rm --network=host ${mount_str}-v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
-fi
-END
-)
+    debug_file_content
     echo -e "$file_content"
   done
 else
-  bin_folder_path=$LI_DOCKER_PATH_BINS/$language/$version
-  global_bin_folder_path=$LI_DOCKER_PATH_BINS/$language/global
-
   # remove folder if present
   [[ -d $bin_folder_path ]] && rm -r $bin_folder_path
 
@@ -71,21 +27,7 @@ else
     # ${i%%[[:cntrl:]]}: remove \r (last elem)
     i=${i%%[[:cntrl:]]}
     [[ $verbose == true ]] && echo "Binary found: $i"
-    cat <<EOT >> $bin_folder_path/$i
-#!/bin/sh
-if [[ -t 0 ]] || [[ \$- == *i* ]] || [[ -n "\$PS1" ]]; then
-  docker run -it --rm --network=host ${mount_str}-v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
-else
-  docker run -i --rm --network=host ${mount_str}-v "\$PWD:\$PWD" -w \$PWD -u \`id -u\` ${env_variables}--env-file \$LI_DOCKER_ENV_FILE_PATH li_$language:$version $i "\$@"
-fi
-EOT
-    chmod +x $bin_folder_path/$i
+    add_binary
   done
-
-  echo $version > $LI_DOCKER_PATH_BINS/$language/.version
-
-  if [ -d $global_bin_folder_path ]; then
-    rm -rf $global_bin_folder_path
-  fi
-  cp -R $bin_folder_path $global_bin_folder_path
+  link_global_version
 fi
