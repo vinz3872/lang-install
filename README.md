@@ -9,6 +9,8 @@ You can also install programs like Postgres as long as they have a docker image.
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 - [Docker](https://docs.docker.com/get-docker/)
 
+### External command used (most shells include them by default)
+`awk`, `cat`, `chmod`, `cp`, `find`, `grep`, `mkdir`, `realpath`, `rm`, `sed`, `xargs`
 
 ## Installation
 
