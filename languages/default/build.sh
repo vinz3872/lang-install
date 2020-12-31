@@ -31,10 +31,9 @@ fi
 
 if [[ -n $mount_list ]]; then
   for i in $mount_list; do
-    mount_str+="-v $i "
+    mount_str+="--mount $(sed -e 's/^"//' -e 's/"$//' <<< "$i") "
   done
 fi
-
 dirname=$(docker run -it --rm --network=host -v "$PWD:$PWD" -w $PWD -u `id -u` li_$language:$version bash -c "which $binary_name | xargs dirname")
 dirname=${dirname%%[[:cntrl:]]}
 

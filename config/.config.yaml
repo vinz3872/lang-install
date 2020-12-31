@@ -19,7 +19,7 @@
 # Global
 global:
   mount:
-    tmp: /tmp:/tmp
+    tmp: type=bind,src=/tmp,dst=/tmp
 
 # Ruby
 ruby:
@@ -29,9 +29,7 @@ ruby:
     bundle_path: $HOME/.gems/$LI_RUBY_VERSION
   export_env: RAILS_ENV
   mount:
-    # home: $HOME:$HOME
-    gems: $HOME/.gems/$LI_RUBY_VERSION:$HOME/.gems/$LI_RUBY_VERSION
-    bundle: $HOME/.bundle:$HOME/.bundle
+    home: type=bind,src=$HOME,dst=$HOME
   additional_packages:
     alpine: git postgresql
 

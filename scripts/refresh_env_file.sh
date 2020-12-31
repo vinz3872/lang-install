@@ -18,7 +18,7 @@ echo "export LI_DOCKER_ENV_FILE_PATH=$docker_env_file_path" >> $env_file_path
 declare -a env_vars=$(compgen -v | grep "LI_.*_env_")
 for i in $env_vars; do
   env_name=${i#*_env_}
-  value=${!i}
+  value=$(sed -e 's/^"//' -e 's/"$//' <<< "${!i}")
   echo "export ${env_name^^}=$(echo $value | envsubst)" >> $env_file_path
   echo ${env_name^^}=$(echo $value | envsubst) >> $docker_env_file_path
 done
