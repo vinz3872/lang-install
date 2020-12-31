@@ -27,7 +27,7 @@ docker build -t "li_$language:$version" \
 
 if [[ -n $export_env ]]; then
   for i in $export_env; do
-    env_variables+="-e $i=\$$i "
+    env_variables+="-e $i=\$$(sed -e 's/^"//' -e 's/"$//' <<< "$i") "
   done
 fi
 
