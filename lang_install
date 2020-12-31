@@ -32,8 +32,8 @@ EOF
 }
 
 list() {
-  tree -d $LI_DOCKER_PATH_BINS
-  exit 0
+  find $LI_DOCKER_PATH_BINS -maxdepth 2 -type d ! -name "global" | sed -e "s|^$LI_DOCKER_PATH_BINS||" -e "s|^\/||" -e "s/[^-][^\/]*\// |/g" -e "s/|\([^ ]\)/└\1/"
+  # tree -dC -L 2 -I global $LI_DOCKER_PATH_BINS
 }
 
 help() {
