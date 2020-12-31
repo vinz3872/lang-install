@@ -3,16 +3,20 @@
 project_dir=$(realpath $0 | xargs dirname)
 cd $project_dir
 
+# load functions
 . lib/parse_options.sh
 . lib/utils.sh
 . lib/actions.sh
 . lib/load_config.sh
 
-. scripts/load_config.sh
-. scripts/parse_yaml.sh
+# load conf & env
+load_config
 
+# parse options
 parse_options "${@}"
 
 [[ $action == 'add' ]] && add_lang
 [[ $action == 'remove' ]] && remove_lang
-./scripts/refresh_env_file.sh
+
+# refresh env file after the add/remove
+refresh_env_file
