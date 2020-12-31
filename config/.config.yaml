@@ -31,13 +31,12 @@ ruby:
   mount:
     # home: $HOME:$HOME
     gems: $HOME/.gems/$LI_RUBY_VERSION:$HOME/.gems/$LI_RUBY_VERSION
+    bundle: $HOME/.bundle:$HOME/.bundle
   additional_packages:
     alpine: git postgresql
 
 # Node
 node:
-  volume:
-    name: li_node
   additional_packages:
     alpine: git
 
