@@ -15,10 +15,7 @@ You can also install programs like Postgres as long as they have a docker image.
 ## Installation
 
 ```bash
-  # You can install it wherever you want, just cd the dir where you want to install it
-  # In this case we'll install it in $HOME
-  cd
-  git clone git@bitbucket.org:vinz3872/lang-install.git
+  git clone https://github.com/vinz3872/lang-install.git
   cd lang-install && ./install.sh
 ```
 
@@ -69,8 +66,21 @@ lang_install remove ruby 2.5.1
 ```
 
 ## Tested languages / programs
-- Golang *(normal / alpine)*
-- Node *(normal / alpine)*
-- Postgres *(normal / alpine)*
-- Python *(normal / alpine)*
-- Ruby *(normal / alpine)*
+- Golang *(default / alpine)*
+- Node *(default / alpine)*
+- Postgres *(default / alpine)*
+- Python *(default / alpine)*
+- Ruby *(default / alpine)*
+
+
+## Contributing
+
+1. Fork the Project
+2. Create a new Branch (`git checkout -b new-branch`)
+3. Commit your Changes (`git commit -m 'add feature'`)
+4. Push to the Branch (`git push origin new-branch`)
+5. Open a Pull Request
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
